@@ -626,7 +626,7 @@ void S2ClosestPointQueryBase<Distance, Data>::InitQueue() {
   }
   if (distance_limit_ < Distance::Infinity()) {
     S2RegionCoverer coverer;
-    coverer.mutable_options()->set_max_cells(4);
+    coverer.mutable_options()->set_max_cells(40);
     S1ChordAngle radius = cap.radius() + distance_limit_.GetChordAngleBound();
     S2Cap search_cap(cap.center(), radius);
     coverer.GetFastCovering(search_cap, &max_distance_covering_);
