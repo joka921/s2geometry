@@ -49,7 +49,7 @@ add_definitions(-DABSL_MIN_LOG_LEVEL=1)
 
 # If we already have abseil we don't need to find it, for an example:
 set(ABSL_ENABLE_INSTALL ON)
-add_subdirectory(abseil-submodule EXCLUDE_FROM_ALL)
+#add_subdirectory(abseil-submodule EXCLUDE_FROM_ALL)
 # add_subdirectory(s2-submodule)
 if (NOT TARGET absl::base)
     find_package(absl REQUIRED)
