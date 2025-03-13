@@ -265,6 +265,9 @@ class S2CellUnion final : public S2Region {
   // Returns the difference of the two given cell unions.
   S2CellUnion Difference(const S2CellUnion& y) const;
 
+  // Version of `Difference` that is passed the result vector directly.
+  void GetDifference(const S2CellUnion& y, std::vector<S2CellId>* out) const;
+
   // Expands the cell union by adding a buffer of cells at "expand_level"
   // around the union boundary.
   //

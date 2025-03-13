@@ -439,12 +439,18 @@ S2CellUnion S2CellUnion::Difference(const S2CellUnion& y) const {
   // use similar techniques as GetIntersection() to be more efficient.
 
   S2CellUnion result;
-  for (S2CellId id : *this) {
-    GetDifferenceInternal(id, y, &result.cell_ids_);
-  }
+  GetDifference(y, &result.cell_ids_);
   // The output is normalized as long as the first argument is normalized.
   ABSL_DCHECK(result.IsNormalized() || !IsNormalized());
   return result;
+}
+
+void S2CellUnion::GetDifference(const S2CellUnion& y, vector<S2CellId>* out) const  {
+  // TODO<joka921> Add assertions.
+  out->clear();
+  for (S2CellId id : *this) {
+    GetDifferenceInternal(id, y, out);
+  }
 }
 
 void S2CellUnion::Expand(int expand_level) {
