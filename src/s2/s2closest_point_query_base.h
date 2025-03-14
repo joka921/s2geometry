@@ -128,6 +128,8 @@ class S2ClosestPointQueryBaseOptions {
     excluded_target_same_distance_ = target;
   }
 
+  bool sortAndDeduplicateInfiniteResults_ = true;
+
  private:
   Distance max_distance_ = Distance::Infinity();
   Delta max_error_ = Delta::Zero();
@@ -472,10 +474,14 @@ void S2ClosestPointQueryBase<Distance, Data>::FindClosestPoints(
       results->push_back(result_singleton_);
     }
   } else if (options.max_results() == Options::kMaxMaxResults) {
-    std::sort(result_vector_.begin(), result_vector_.end());
-    std::unique_copy(result_vector_.begin(), result_vector_.end(),
-                     std::back_inserter(*results));
-    result_vector_.clear();
+    if (options.sortAndDeduplicateInfiniteResults_) {
+      std::sort(result_vector_.begin(), result_vector_.end());
+      std::unique_copy(result_vector_.begin(), result_vector_.end(),
+                       std::back_inserter(*results));
+      result_vector_.clear();
+    } else {
+      *results = std::move(result_vector_);
+    }
   } else {
     results->reserve(result_set_.size());
     for (; !result_set_.empty(); result_set_.pop()) {
