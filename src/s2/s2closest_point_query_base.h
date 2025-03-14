@@ -637,7 +637,9 @@ void S2ClosestPointQueryBase<Distance, Data>::InitQueue() {
       S2Cap exclude_cap(options().excluded_target_same_distance().value(), distance_limit_.GetChordAngleBound());
       // TODO<joka921> Reuse the vector.
       auto covering = coverer.GetInteriorCovering(exclude_cap);
-      S2CellUnion{std::move(intersection_with_max_distance_)}.GetDifference(covering, &intersection_with_max_distance_);
+      auto innerCoveringTarget = coverer.GetInteriorCovering(search_cap);
+      auto guaranteedExcludedCovering = covering.Intersection(innerCoveringTarget);
+      S2CellUnion{std::move(intersection_with_max_distance_)}.GetDifference(guaranteedExcludedCovering, &intersection_with_max_distance_);
       // The `initial_cells` still point to the correct vector...
     }
   }
