@@ -208,7 +208,7 @@ class S2ClosestPointQueryBase {
     }
 
     // Compares two Result objects first by distance, then by point_data().
-    friend bool operator<(const Result& x, const Result& y) {
+    [[gnu::always_inline]] [[clang::always_inline]] friend bool operator<(const Result& x, const Result& y) {
       if (x.distance_ < y.distance_) return true;
       if (y.distance_ < x.distance_) return false;
       return x.point_data_ < y.point_data_;

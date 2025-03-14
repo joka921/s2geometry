@@ -119,7 +119,7 @@ class S2PointIndex {
     friend bool operator==(const PointData& x, const PointData& y) {
       return x.tuple_ == y.tuple_;
     }
-    friend bool operator<(const PointData& x, const PointData& y) {
+    [[gnu::always_inline]] [[clang::always_inline]] friend bool operator<(const PointData& x, const PointData& y) {
       return x.tuple_ < y.tuple_;
     }
 
