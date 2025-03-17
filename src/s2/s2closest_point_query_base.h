@@ -476,7 +476,7 @@ void S2ClosestPointQueryBase<Distance, Data>::FindClosestPoints(
   } else if (options.max_results() == Options::kMaxMaxResults) {
     if (options.sortAndDeduplicateInfiniteResults_) {
       std::sort(result_vector_.begin(), result_vector_.end());
-      std::unique_copy(result_vector_.qqbegin(), result_vector_.end(),
+      std::unique_copy(result_vector_.begin(), result_vector_.end(),
                        std::back_inserter(*results));
       result_vector_.clear();
     } else {
