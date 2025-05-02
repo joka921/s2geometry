@@ -420,7 +420,7 @@ inline void S2ClosestPointQuery<Data>::FindClosestPoints(
 template <class Data>
 inline typename S2ClosestPointQuery<Data>::Result
 S2ClosestPointQuery<Data>::FindClosestPoint(Target* target) {
-  static_assert(sizeof(Options) <= 32, "Consider not copying Options here");
+  //static_assert(sizeof(Options) <= 32, "Consider not copying Options here");
   Options tmp_options = options_;
   tmp_options.set_max_results(1);
   return base_.FindClosestPoint(target, tmp_options);
@@ -434,7 +434,7 @@ inline S1ChordAngle S2ClosestPointQuery<Data>::GetDistance(Target* target) {
 template <class Data>
 bool S2ClosestPointQuery<Data>::IsDistanceLess(
     Target* target, S1ChordAngle limit) {
-  static_assert(sizeof(Options) <= 32, "Consider not copying Options here");
+  //static_assert(sizeof(Options) <= 32, "Consider not copying Options here");
   Options tmp_options = options_;
   tmp_options.set_max_results(1);
   tmp_options.set_max_distance(limit);
@@ -445,7 +445,7 @@ bool S2ClosestPointQuery<Data>::IsDistanceLess(
 template <class Data>
 bool S2ClosestPointQuery<Data>::IsDistanceLessOrEqual(
     Target* target, S1ChordAngle limit) {
-  static_assert(sizeof(Options) <= 32, "Consider not copying Options here");
+  //static_assert(sizeof(Options) <= 32, "Consider not copying Options here");
   Options tmp_options = options_;
   tmp_options.set_max_results(1);
   tmp_options.set_inclusive_max_distance(limit);
@@ -456,7 +456,7 @@ bool S2ClosestPointQuery<Data>::IsDistanceLessOrEqual(
 template <class Data>
 bool S2ClosestPointQuery<Data>::IsConservativeDistanceLessOrEqual(
     Target* target, S1ChordAngle limit) {
-  static_assert(sizeof(Options) <= 32, "Consider not copying Options here");
+  //static_assert(sizeof(Options) <= 32, "Consider not copying Options here");
   Options tmp_options = options_;
   tmp_options.set_max_results(1);
   tmp_options.set_conservative_max_distance(limit);

@@ -430,7 +430,7 @@ inline bool operator!=(S1ChordAngle x, S1ChordAngle y) {
   return x.length2() != y.length2();
 }
 
-inline bool operator<(S1ChordAngle x, S1ChordAngle y) {
+[[gnu::always_inline]] [[clang::always_inline]] inline bool operator<(S1ChordAngle x, S1ChordAngle y) {
   return x.length2() < y.length2();
 }
 

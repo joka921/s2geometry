@@ -25,6 +25,7 @@
 #include <limits>
 #include <queue>
 #include <vector>
+#include <optional>
 
 #include "absl/container/inlined_vector.h"
 #include "absl/log/absl_check.h"
@@ -119,12 +120,23 @@ class S2ClosestPointQueryBaseOptions {
   bool use_brute_force() const;
   void set_use_brute_force(bool use_brute_force);
 
+  // TODO<joka921> Move to C++ file.
+  const std::optional<S2Point>& excluded_target_same_distance() const {
+    return excluded_target_same_distance_;
+  }
+  void set_excluded_target_same_distance(const std::optional<S2Point>& target) {
+    excluded_target_same_distance_ = target;
+  }
+
+  bool sortAndDeduplicateInfiniteResults_ = true;
+
  private:
   Distance max_distance_ = Distance::Infinity();
   Delta max_error_ = Delta::Zero();
   const S2Region* region_ = nullptr;
   int max_results_ = kMaxMaxResults;
   bool use_brute_force_ = false;
+  std::optional<S2Point> excluded_target_same_distance_;
 };
 
 // S2ClosestPointQueryBase is a templatized class for finding the closest
@@ -198,7 +210,7 @@ class S2ClosestPointQueryBase {
     }
 
     // Compares two Result objects first by distance, then by point_data().
-    friend bool operator<(const Result& x, const Result& y) {
+    [[gnu::always_inline]] [[clang::always_inline]] friend bool operator<(const Result& x, const Result& y) {
       if (x.distance_ < y.distance_) return true;
       if (y.distance_ < x.distance_) return false;
       return x.point_data_ < y.point_data_;
@@ -462,10 +474,14 @@ void S2ClosestPointQueryBase<Distance, Data>::FindClosestPoints(
       results->push_back(result_singleton_);
     }
   } else if (options.max_results() == Options::kMaxMaxResults) {
-    std::sort(result_vector_.begin(), result_vector_.end());
-    std::unique_copy(result_vector_.begin(), result_vector_.end(),
-                     std::back_inserter(*results));
-    result_vector_.clear();
+    if (options.sortAndDeduplicateInfiniteResults_) {
+      std::sort(result_vector_.begin(), result_vector_.end());
+      std::unique_copy(result_vector_.begin(), result_vector_.end(),
+                       std::back_inserter(*results));
+      result_vector_.clear();
+    } else {
+      *results = std::move(result_vector_);
+    }
   } else {
     results->reserve(result_set_.size());
     for (; !result_set_.empty(); result_set_.pop()) {
@@ -616,13 +632,22 @@ void S2ClosestPointQueryBase<Distance, Data>::InitQueue() {
   }
   if (distance_limit_ < Distance::Infinity()) {
     S2RegionCoverer coverer;
-    coverer.mutable_options()->set_max_cells(4);
+    coverer.mutable_options()->set_max_cells(40);
     S1ChordAngle radius = cap.radius() + distance_limit_.GetChordAngleBound();
     S2Cap search_cap(cap.center(), radius);
     coverer.GetFastCovering(search_cap, &max_distance_covering_);
     S2CellUnion::GetIntersection(*initial_cells, max_distance_covering_,
                                  &intersection_with_max_distance_);
     initial_cells = &intersection_with_max_distance_;
+    if (options().excluded_target_same_distance()) {
+      S2Cap exclude_cap(options().excluded_target_same_distance().value(), distance_limit_.GetChordAngleBound());
+      // TODO<joka921> Reuse the vector.
+      auto covering = coverer.GetInteriorCovering(exclude_cap);
+      auto innerCoveringTarget = coverer.GetInteriorCovering(search_cap);
+      auto guaranteedExcludedCovering = covering.Intersection(innerCoveringTarget);
+      S2CellUnion{std::move(intersection_with_max_distance_)}.GetDifference(guaranteedExcludedCovering, &intersection_with_max_distance_);
+      // The `initial_cells` still point to the correct vector...
+    }
   }
   iter_.Begin();
   for (size_t i = 0; i < initial_cells->size() && !iter_.done(); ++i) {
